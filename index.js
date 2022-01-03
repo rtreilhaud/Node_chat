@@ -11,17 +11,15 @@ app.set('view engine', 'pug');
 
 io.on('connection', (socket) => {
 	console.log('Client', socket.id, 'is connected via WebSockets');
+
+	socket.on('message:new', ({ nickname, message }) => {
+		io.sockets.emit('message:new', { nickname, message });
+	});
 });
 
 app.get('/', function (req, res) {
-	const msg = [
-		{ user: 'pseudo1', text: 'Message example' },
-		{ user: 'pseudo2', text: 'Response example' },
-		{ user: 'pseudo3', text: '...' }
-	];
 	res.render('index', {
-		title: 'Chat room',
-		messages: msg
+		title: 'Chat room'
 	});
 });
 
