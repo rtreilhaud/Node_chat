@@ -26,7 +26,6 @@ class Client {
 		this.form = document.querySelector('#chat-form');
 		this.input = document.querySelector('#message');
 		this.messageList = document.querySelector('#message-list');
-		this.messages = [];
 
 		/*
             Un gestionnaire d'événement de la websocket qui écoute l'évenement nommé comme un peu plus bas (https://socket.io/docs/v3/listening-to-events/)
@@ -76,22 +75,13 @@ class Client {
             
             L'ordre doit être inversé, c'est à dire que le dernier message envoyé (dans l'ordre chronologique) doit être le premier de la liste
 		 */
-		this.messages.unshift({ nickname, message });
-
-		console.log(this.messages);
-
-		this.messageList.replaceChildren();
-
-		for (const msg of this.messages) {
-			console.log(msg);
-			const hr = document.createElement('hr');
-			hr.classList = 'mt-0 mb-3';
-			const p = document.createElement('p');
-			const nickname = document.createElement('span');
-			nickname.classList = 'fw-bold bg-info p-1 me-1';
-			nickname.textContent = msg.nickname;
-			p.append(nickname, msg.message);
-			this.messageList.append(hr, p);
-		}
+		const hr = document.createElement('hr');
+		hr.classList = 'mt-0 mb-3';
+		const p = document.createElement('p');
+		const span = document.createElement('span');
+		span.classList = 'fw-bold bg-info p-1 me-1';
+		span.textContent = nickname;
+		p.append(span, message);
+		this.messageList.prepend(hr, p);
 	}
 }
