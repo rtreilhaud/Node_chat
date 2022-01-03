@@ -1,0 +1,9 @@
+.title {
+	text-transform: uppercase;
+}
+
+#channels > li {
+	list-style: none;
+	padding-left: none;
+	text-transform: capitalize;
+}

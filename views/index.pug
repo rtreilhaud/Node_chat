@@ -1,29 +1,26 @@
 html
-  head
+    head
         include head.pug
         script(src='/socket.io/socket.io.js')
-        script. 
-            const socket = io.connect('http://localhost:9000')
-  body
-    h1(class='bg-primary text-white p-1 m-0') Chat room avec Socket.io
-    div(class='d-flex h-75')
-        section(class='bg-secondary container-fluid w-25')
-            h2(class='mt-1') Channels
-            nav 
-                ul 
-                    li General 
-                    li Gaming 
-                    li Random
-        section(class='container-fluid')
-            form(class='d-flex mt-1')
-                input(type='text' class='form-control' placeholder='Enter your message here...')
-                input(type='submit' class='btn btn-primary ms-1' value='Send')   
-            div(class='d-flex flex-column')
-                each msg in messages
-                    hr(class='mt-0 mb-3')
-                    p
-                        span(class='fw-bold bg-info p-1 me-1')= msg.user 
-                        span= msg.text
+
+    body
+        h1(class='bg-primary text-white p-1 m-0') Chat room with Socket.io
+        div(class='d-flex h-75')
+            section(class='bg-secondary container-fluid w-25')
+                h2(class='title mt-3') channels
+                nav
+                    ul(id='channels')  
+                        li general 
+                        li gaming 
+                        li random
+            section(class='container-fluid')
+                form(id='chat-form' class='d-flex mt-3')
+                    input(id='message' class='form-control' name='message' type='text' placeholder='Enter your message here...')
+                    input(type='submit' class='btn btn-primary ms-1' value='Send')   
+                div(id='message-list' class='d-flex flex-column')
+    
+    script(src='/scripts/client.js')
+    script(src='/scripts/app.js')
 
 
             
