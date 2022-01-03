@@ -41,6 +41,7 @@ class Client {
 	 * (validation du formulaire, clic sur un channel ... etc)
 	 */
 	init() {
+		this.input.focus();
 		// Ici on ajoute un gestionnaire d'événement sur le formulaire afin de déclencher la méthode sendMessage de notre classe
 		this.form.addEventListener('submit', (event) => {
 			event.preventDefault();
