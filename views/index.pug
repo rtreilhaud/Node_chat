@@ -1,5 +1,9 @@
 html
-  include head.pug
+  head
+        include head.pug
+        script(src='/socket.io/socket.io.js')
+        script. 
+            const socket = io.connect('http://localhost:9000')
   body
     h1(class='bg-primary text-white p-1 m-0') Chat room avec Socket.io
     div(class='d-flex h-75')
