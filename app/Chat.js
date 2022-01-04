@@ -36,11 +36,10 @@ class Chat {
 			const user = new User(socket, nickname);
 			this.users.push(user);
 
-			const users = this.getUsernamesList();
-			this.io.sockets.emit('user:list', users);
+			this.io.sockets.emit('user:list', this.getUsernamesList());
 
-			socket.on('message:new', ({ nickname, message }) => {
-				this._onNewMessage(nickname, message);
+			socket.on('message:new', (message) => {
+				this._onNewMessage(user, message);
 			});
 
 			// console.log(this.io.sockets);
@@ -82,7 +81,7 @@ class Chat {
 	_onNewMessage(user, message) {
 		// A vous de deviner
 		this.io.sockets.emit('message:new', {
-			nickname: user,
+			nickname: user.nickname,
 			message: message
 		});
 	}

@@ -9,8 +9,8 @@ class Client {
         */
 		this.socket = io.connect('/'); // "socket" est un objet représentant ce socket client unique
 
-		this.nickname = window.prompt('Choose a nickname');
-		this.socket.emit('user:nickname', this.nickname);
+		const nickname = window.prompt('Choose a nickname');
+		this.socket.emit('user:nickname', nickname);
 
 		// Dom elements
 
@@ -65,10 +65,7 @@ class Client {
             Ici on emet un event dans la websocket (https://socket.io/docs/v3/emitting-events/) que l'on va nommer "message:new"
             ⚠️ L'objet qui sera envoyé doit respecter la forme { nickname: value, message: value} ⚠️
         */
-		this.socket.emit('message:new', {
-			nickname: this.nickname,
-			message: message
-		});
+		this.socket.emit('message:new', message);
 	}
 
 	/**
