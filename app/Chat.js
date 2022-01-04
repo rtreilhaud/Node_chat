@@ -28,13 +28,20 @@ class Chat {
 		 *
 		 * Il devra :
 		 *  - instancier un user puis l'ajouter à liste des users
-		 *  - Trigger l'event user:list vers TOUTES les clients connectés
+		 *  - Trigger l'event user:list vers TOUS les clients connectés
 		 *  - Mettre en place deux gestionnaire d'événement sur les events ['message:new', 'disconnect']
 		 */
 
 		socket.once('user:nickname', (nickname) => {
 			const user = new User(socket, nickname);
 			this.users.push(user);
+
+			const users = this.getUsernamesList();
+			this.io.sockets.emit('user:list', users);
+
+			socket.on('message:new', ({ nickname, message }) => {
+				this._onNewMessage(nickname, message);
+			});
 		});
 	}
 
@@ -56,13 +63,19 @@ class Chat {
 	 */
 	_onNewMessage(user, message) {
 		// A vous de deviner
+		this.io.sockets.emit('message:new', {
+			nickname: user,
+			message: message
+		});
 	}
 
 	/**
 	 *
 	 * @returns {Array} la liste des "nicknames" prise dans la liste des users
 	 */
-	getUsernamesList() {}
+	getUsernamesList() {
+		return this.users.map((user) => user.nickname);
+	}
 }
 
 module.exports = Chat;

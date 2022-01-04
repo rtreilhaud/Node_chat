@@ -15,10 +15,6 @@ io.on('connection', (socket) => {
 	console.log('Client', socket.id, 'is connected via WebSockets');
 
 	chat.onConnection(socket);
-
-	socket.on('message:new', ({ nickname, message }) => {
-		io.sockets.emit('message:new', { nickname, message });
-	});
 });
 
 app.get('/', function (req, res) {
