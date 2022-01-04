@@ -42,6 +42,19 @@ class Chat {
 			socket.on('message:new', ({ nickname, message }) => {
 				this._onNewMessage(nickname, message);
 			});
+
+			// console.log(this.io.sockets);
+			socket.on('disconnect', () => {
+				const previousUsers = this.users.map((user) => user.id);
+				const currentSockets = this.io.sockets.sockets;
+				const disconnectedID = previousUsers.filter(
+					(userID) => !currentSockets.has(userID)
+				)[0];
+				const disconnectedUser = this.users.filter(
+					(user) => user.id === disconnectedID
+				)[0];
+				this._onUserDisconnect(disconnectedUser);
+			});
 		});
 	}
 
@@ -49,11 +62,16 @@ class Chat {
 	 *
 	 * @param {User} user
 	 */
-	_onUserDisconnect() {
+	_onUserDisconnect(user) {
 		/**
 		 * Il faut retirer notre user de la liste des utilisateurs puis le deconnecter
 		 * Suite à ça il faudra déclencher l'event 'user:list'
 		 */
+		this.users = this.users.filter((u) => u != user);
+
+		user.destroy();
+
+		this.io.sockets.emit('user:list', this.getUsernamesList());
 	}
 
 	/**
