@@ -27,6 +27,7 @@ class Client {
 		this.form = document.querySelector('#chat-form');
 		this.input = document.querySelector('#message');
 		this.messageList = document.querySelector('#message-list');
+		this.userList = document.querySelector('#user-list');
 
 		/*
             Un gestionnaire d'événement de la websocket qui écoute l'évenement nommé comme un peu plus bas (https://socket.io/docs/v3/listening-to-events/)
@@ -34,6 +35,10 @@ class Client {
 
 		this.socket.on('message:new', ({ nickname, message }) => {
 			this.receiveMessage(nickname, message);
+		});
+
+		this.socket.on('user:list', (users) => {
+			this.displayUsers(users);
 		});
 	}
 
@@ -85,5 +90,14 @@ class Client {
 		span.textContent = nickname;
 		p.append(span, message);
 		this.messageList.prepend(hr, p);
+	}
+
+	displayUsers(users) {
+		this.userList.innerHTML = '';
+		for (const user of users) {
+			const li = document.createElement('li');
+			li.textContent = user;
+			this.userList.appendChild(li);
+		}
 	}
 }

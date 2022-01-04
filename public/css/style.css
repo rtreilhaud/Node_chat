@@ -1,9 +1,15 @@
 .title {
+	text-align: center;
 	text-transform: uppercase;
+}
+
+#channels {
+	padding: 0;
 }
 
 #channels > li {
 	list-style: none;
 	padding-left: none;
 	text-transform: capitalize;
+	text-align: center;
 }
