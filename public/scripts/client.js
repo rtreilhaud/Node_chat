@@ -9,7 +9,8 @@ class Client {
         */
 		this.socket = io.connect('/'); // "socket" est un objet représentant ce socket client unique
 
-		this.nickname = window.prompt('Choisissez un pseudonyme');
+		this.nickname = window.prompt('Choose a nickname');
+		this.socket.emit('user:nickname', this.nickname);
 
 		// Dom elements
 
@@ -31,9 +32,9 @@ class Client {
             Un gestionnaire d'événement de la websocket qui écoute l'évenement nommé comme un peu plus bas (https://socket.io/docs/v3/listening-to-events/)
         */
 
-		this.socket.on('message:new', ({ nickname, message }) =>
-			this.receiveMessage(nickname, message)
-		);
+		this.socket.on('message:new', ({ nickname, message }) => {
+			this.receiveMessage(nickname, message);
+		});
 	}
 
 	/**

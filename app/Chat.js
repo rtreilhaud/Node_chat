@@ -5,12 +5,16 @@ class Chat {
 	 *
 	 * @param {*} io une instance de la socket
 	 */
-	constructor() {
+	constructor(io) {
 		/**
-		 * @var {socket} io
-		 * @var {Array} users la liste des utilisateurs
-		 * @var {Array} messages la liste des messages
+		 * @const {socket} io
+		 * @const {Array} users la liste des utilisateurs
+		 * @const {Array} messages la liste des messages
 		 */
+
+		this.io = io;
+		this.users = [];
+		this.messages = [];
 	}
 
 	/**
@@ -18,8 +22,7 @@ class Chat {
 	 *
 	 * @param {*} socket
 	 */
-
-	onConnection() {
+	onConnection(socket) {
 		/**
 		 * Un gestionnaire d'événement unique (https://socket.io/docs/v4/listening-to-events/#socketonceeventname-listener) qui va gérer l'evenement qui sera trigger lorsqu'un User choisi son pseudo 'user:nickname'
 		 *
@@ -28,13 +31,17 @@ class Chat {
 		 *  - Trigger l'event user:list vers TOUTES les clients connectés
 		 *  - Mettre en place deux gestionnaire d'événement sur les events ['message:new', 'disconnect']
 		 */
+
+		socket.once('user:nickname', (nickname) => {
+			const user = new User(socket, nickname);
+			this.users.push(user);
+		});
 	}
 
 	/**
 	 *
 	 * @param {User} user
 	 */
-
 	_onUserDisconnect() {
 		/**
 		 * Il faut retirer notre user de la liste des utilisateurs puis le deconnecter
@@ -47,7 +54,6 @@ class Chat {
 	 * @param {User} user L'utilisateur ayant écrit le message
 	 * @param {String} message Le texte du message
 	 */
-
 	_onNewMessage(user, message) {
 		// A vous de deviner
 	}
@@ -56,7 +62,6 @@ class Chat {
 	 *
 	 * @returns {Array} la liste des "nicknames" prise dans la liste des users
 	 */
-
 	getUsernamesList() {}
 }
 
