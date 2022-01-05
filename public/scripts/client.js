@@ -29,6 +29,13 @@ class Client {
 		this.messageList = document.querySelector('#message-list');
 		this.userList = document.querySelector('#user-list');
 		this.notification = document.querySelector('#typing-notification');
+		this.channels = document.querySelector('#channels');
+		this.channel = 'general';
+
+		this.changeChannel(this.channel);
+		this.channels.addEventListener('click', ({ target }) => {
+			this.changeChannel(target.textContent.trim());
+		});
 
 		/*
             Un gestionnaire d'événement de la websocket qui écoute l'évenement nommé comme un peu plus bas (https://socket.io/docs/v3/listening-to-events/)
@@ -126,5 +133,20 @@ class Client {
 
 	clearTypingNotification() {
 		this.notification.textContent = '';
+	}
+
+	changeChannel(channel) {
+		this.channel = channel;
+		this.socket.emit('channel:change', channel);
+		// Clear messages
+		this.messageList.innerHTML = '';
+
+		for (const channel of this.channels.childNodes) {
+			if (channel.textContent === this.channel) {
+				channel.classList.add('fw-bold');
+			} else {
+				channel.classList.remove('fw-bold');
+			}
+		}
 	}
 }

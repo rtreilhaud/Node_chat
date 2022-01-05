@@ -1,11 +1,17 @@
 const User = require('./User');
+const Channel = require('./Channel');
 
 class Chat {
 	/**
 	 *
 	 * @param {*} io une instance de la socket
+	 * @param {[string]} channels
 	 */
-	constructor(io) {
+	constructor(
+		io,
+		channels = ['general', 'gaming', 'random'],
+		defaultChannel = 'general'
+	) {
 		/**
 		 * @const {socket} io
 		 * @const {Array} users la liste des utilisateurs
@@ -15,6 +21,13 @@ class Chat {
 		this.io = io;
 		this.users = [];
 		this.messages = [];
+
+		// Create the channels
+		for (const channel of channels) {
+			this[channel] = new Channel(io, channel);
+		}
+
+		this.defaultChannel = defaultChannel;
 	}
 
 	/**
@@ -36,7 +49,7 @@ class Chat {
 			const user = new User(socket, nickname);
 			this.users.push(user);
 
-			this.io.sockets.emit('user:list', this.getUsernamesList());
+			this.joinChannel(user, this.defaultChannel);
 
 			socket.on('message:new', (message) => {
 				this._onNewMessage(user, message);
@@ -55,7 +68,21 @@ class Chat {
 			});
 
 			socket.on('notify:typing', (nickname) => {
-				this.io.sockets.emit('notify:typing', nickname);
+				this.io
+					.to(this.getCurrentChannel(user))
+					.emit('notify:typing', nickname);
+			});
+
+			socket.on('channel:change', (channel) => {
+				// Join the new channel
+				this.joinChannel(user, channel);
+
+				// Leave the other channels
+				for (const room of socket.rooms) {
+					if (room !== socket.id && room !== channel) {
+						this.leaveChannel(user, room);
+					}
+				}
 			});
 		});
 	}
@@ -76,14 +103,17 @@ class Chat {
 		this.io.sockets.emit('user:list', this.getUsernamesList());
 	}
 
+	getCurrentChannel(user) {
+		return [...user.socket.rooms].filter((room) => room !== user.id)[0];
+	}
+
 	/**
 	 *
 	 * @param {User} user L'utilisateur ayant écrit le message
 	 * @param {String} message Le texte du message
 	 */
 	_onNewMessage(user, message) {
-		// A vous de deviner
-		this.io.sockets.emit('message:new', {
+		this.io.to(this.getCurrentChannel(user)).emit('message:new', {
 			nickname: user.nickname,
 			message: message
 		});
@@ -93,8 +123,24 @@ class Chat {
 	 *
 	 * @returns {Array} la liste des "nicknames" prise dans la liste des users
 	 */
-	getUsernamesList() {
-		return this.users.map((user) => user.nickname);
+	getUsernamesList(channel) {
+		return this[channel].getUsersList().map((user) => user.nickname);
+	}
+
+	sendUsernamesList(channel) {
+		this.io.to(channel).emit('user:list', this.getUsernamesList(channel));
+	}
+
+	joinChannel(user, channel) {
+		user.socket.join(channel);
+		this[channel].pushUser(user);
+		this.sendUsernamesList(channel);
+	}
+
+	leaveChannel(user, channel) {
+		user.socket.leave(channel);
+		this[channel].removeUser(user);
+		this.sendUsernamesList(channel);
 	}
 }
 
