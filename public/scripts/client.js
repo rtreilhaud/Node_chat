@@ -28,6 +28,7 @@ class Client {
 		this.input = document.querySelector('#message');
 		this.messageList = document.querySelector('#message-list');
 		this.userList = document.querySelector('#user-list');
+		this.notification = document.querySelector('#typing-notification');
 
 		/*
             Un gestionnaire d'événement de la websocket qui écoute l'évenement nommé comme un peu plus bas (https://socket.io/docs/v3/listening-to-events/)
@@ -35,10 +36,21 @@ class Client {
 
 		this.socket.on('message:new', ({ nickname, message }) => {
 			this.receiveMessage(nickname, message);
+
+			// Clear typing notification
+			this.clearTypingNotification();
 		});
 
 		this.socket.on('user:list', (users) => {
 			this.displayUsers(users);
+		});
+
+		this.socket.on('notify:typing', (nickname) => {
+			clearTimeout(this.timeoutID);
+			this.displayTypingNotification(nickname);
+			this.timeoutID = setTimeout(() => {
+				this.clearTypingNotification();
+			}, 5000);
 		});
 	}
 
@@ -53,6 +65,10 @@ class Client {
 			event.preventDefault();
 			this.sendMessage(this.input.value);
 			this.input.value = '';
+		});
+
+		this.input.addEventListener('input', () => {
+			this.socket.emit('notify:typing', this.nickname);
 		});
 	}
 
@@ -100,5 +116,15 @@ class Client {
 			}
 			this.userList.appendChild(li);
 		}
+	}
+
+	displayTypingNotification(nickname) {
+		if (nickname !== this.nickname) {
+			this.notification.textContent = nickname + ' is typing...';
+		}
+	}
+
+	clearTypingNotification() {
+		this.notification.textContent = '';
 	}
 }

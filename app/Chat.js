@@ -42,7 +42,6 @@ class Chat {
 				this._onNewMessage(user, message);
 			});
 
-			// console.log(this.io.sockets);
 			socket.on('disconnect', () => {
 				const previousUsers = this.users.map((user) => user.id);
 				const currentSockets = this.io.sockets.sockets;
@@ -53,6 +52,10 @@ class Chat {
 					(user) => user.id === disconnectedID
 				)[0];
 				this._onUserDisconnect(disconnectedUser);
+			});
+
+			socket.on('notify:typing', (nickname) => {
+				this.io.sockets.emit('notify:typing', nickname);
 			});
 		});
 	}

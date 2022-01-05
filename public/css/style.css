@@ -13,3 +13,9 @@
 	text-transform: capitalize;
 	text-align: center;
 }
+
+#typing-notification {
+	display: inline-block;
+	font-weight: bold;
+	font-size: 0.75rem;
+}
