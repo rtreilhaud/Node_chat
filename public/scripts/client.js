@@ -9,8 +9,8 @@ class Client {
         */
 		this.socket = io.connect('/'); // "socket" est un objet représentant ce socket client unique
 
-		const nickname = window.prompt('Choose a nickname');
-		this.socket.emit('user:nickname', nickname);
+		this.nickname = window.prompt('Choose a nickname');
+		this.socket.emit('user:nickname', this.nickname);
 
 		// Dom elements
 
@@ -83,7 +83,8 @@ class Client {
 		hr.classList = 'mt-0 mb-3';
 		const p = document.createElement('p');
 		const span = document.createElement('span');
-		span.classList = 'fw-bold bg-info p-1 me-1';
+		span.classList = 'fw-bold p-1 me-1';
+		span.classList += nickname === this.nickname ? ' bg-info' : ' bg-secondary';
 		span.textContent = nickname;
 		p.append(span, message);
 		this.messageList.prepend(hr, p);
@@ -94,6 +95,9 @@ class Client {
 		for (const user of users) {
 			const li = document.createElement('li');
 			li.textContent = user;
+			if (user === this.nickname) {
+				li.classList = 'fw-bold';
+			}
 			this.userList.appendChild(li);
 		}
 	}
