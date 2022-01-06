@@ -55,16 +55,13 @@ class Chat {
 				this._onNewMessage(user, message);
 			});
 
+			let previousRooms;
+			socket.on('disconnecting', () => {
+				previousRooms = socket.rooms;
+			});
+
 			socket.on('disconnect', () => {
-				const previousUsers = this.users.map((user) => user.id);
-				const currentSockets = this.io.sockets.sockets;
-				const disconnectedID = previousUsers.filter(
-					(userID) => !currentSockets.has(userID)
-				)[0];
-				const disconnectedUser = this.users.filter(
-					(user) => user.id === disconnectedID
-				)[0];
-				this._onUserDisconnect(disconnectedUser);
+				this._onUserDisconnect(user, previousRooms);
 			});
 
 			socket.on('notify:typing', (nickname) => {
@@ -91,16 +88,21 @@ class Chat {
 	 *
 	 * @param {User} user
 	 */
-	_onUserDisconnect(user) {
+	_onUserDisconnect(user, previousChannels) {
 		/**
 		 * Il faut retirer notre user de la liste des utilisateurs puis le deconnecter
 		 * Suite à ça il faudra déclencher l'event 'user:list'
 		 */
 		this.users = this.users.filter((u) => u != user);
 
-		user.destroy();
+		// Remove user from user lists
+		for (const channel of previousChannels) {
+			if (channel != user.id) {
+				this.removeUserFromChannel(user, channel);
+			}
+		}
 
-		this.io.sockets.emit('user:list', this.getUsernamesList());
+		user.destroy();
 	}
 
 	getCurrentChannel(user) {
@@ -137,10 +139,14 @@ class Chat {
 		this.sendUsernamesList(channel);
 	}
 
-	leaveChannel(user, channel) {
-		user.socket.leave(channel);
+	removeUserFromChannel(user, channel) {
 		this[channel].removeUser(user);
 		this.sendUsernamesList(channel);
+	}
+
+	leaveChannel(user, channel) {
+		user.socket.leave(channel);
+		this.removeUserFromChannel(user, channel);
 	}
 }
 
