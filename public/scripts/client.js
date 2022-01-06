@@ -9,7 +9,12 @@ class Client {
         */
 		this.socket = io.connect('/'); // "socket" est un objet représentant ce socket client unique
 
-		this.nickname = window.prompt('Choose a nickname');
+		this.nickname = window.prompt('Choose a nickname').trim();
+		while (this.nickname === '') {
+			this.nickname = window
+				.prompt('You must choose a nickname whith at least 1 character!')
+				.trim();
+		}
 		this.socket.emit('user:nickname', this.nickname);
 
 		// Dom elements
