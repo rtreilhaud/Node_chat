@@ -75,7 +75,9 @@ class Client {
 		// Ici on ajoute un gestionnaire d'événement sur le formulaire afin de déclencher la méthode sendMessage de notre classe
 		this.form.addEventListener('submit', (event) => {
 			event.preventDefault();
-			this.sendMessage(this.input.value);
+			if (this.input.value.trim() !== '') {
+				this.sendMessage(this.input.value.trim());
+			}
 			this.input.value = '';
 		});
 
