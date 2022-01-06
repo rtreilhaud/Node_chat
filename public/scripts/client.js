@@ -46,8 +46,8 @@ class Client {
             Un gestionnaire d'événement de la websocket qui écoute l'évenement nommé comme un peu plus bas (https://socket.io/docs/v3/listening-to-events/)
         */
 
-		this.socket.on('message:new', ({ nickname, message }) => {
-			this.receiveMessage(nickname, message);
+		this.socket.on('message:new', ({ user, message }) => {
+			this.receiveMessage(user, message);
 
 			// Clear typing notification
 			this.clearTypingNotification();
@@ -57,9 +57,9 @@ class Client {
 			this.displayUsers(users);
 		});
 
-		this.socket.on('notify:typing', (nickname) => {
+		this.socket.on('notify:typing', (user) => {
 			clearTimeout(this.timeoutID);
-			this.displayTypingNotification(nickname);
+			this.displayTypingNotification(user);
 			this.timeoutID = setTimeout(() => {
 				this.clearTypingNotification();
 			}, 5000);
@@ -82,7 +82,10 @@ class Client {
 		});
 
 		this.input.addEventListener('input', () => {
-			this.socket.emit('notify:typing', this.nickname);
+			this.socket.emit('notify:typing', {
+				nickname: this.nickname,
+				id: this.socket.id
+			});
 		});
 	}
 
@@ -103,7 +106,7 @@ class Client {
 	 * @param {string} nickname le pseudo du client
 	 * @param {string} message le message reçu
 	 */
-	receiveMessage(nickname, message) {
+	receiveMessage(user, message) {
 		/*
             Ici on affiche le message dans le dom
             
@@ -114,8 +117,8 @@ class Client {
 		const p = document.createElement('p');
 		const span = document.createElement('span');
 		span.classList = 'fw-bold p-1 me-1';
-		span.classList += nickname === this.nickname ? ' bg-info' : ' bg-secondary';
-		span.textContent = nickname;
+		span.classList += user.id === this.socket.id ? ' bg-info' : ' bg-secondary';
+		span.textContent = user.nickname;
 		p.append(span, message);
 		this.messageList.prepend(hr, p);
 	}
@@ -124,17 +127,17 @@ class Client {
 		this.userList.innerHTML = '';
 		for (const user of users) {
 			const li = document.createElement('li');
-			li.textContent = user;
-			if (user === this.nickname) {
+			li.textContent = user.nickname;
+			if (user.id === this.socket.id) {
 				li.classList = 'fw-bold';
 			}
 			this.userList.appendChild(li);
 		}
 	}
 
-	displayTypingNotification(nickname) {
-		if (nickname !== this.nickname) {
-			this.notification.textContent = nickname + ' is typing...';
+	displayTypingNotification(user) {
+		if (user.id !== this.socket.id) {
+			this.notification.textContent = user.nickname + ' is typing...';
 		}
 	}
 

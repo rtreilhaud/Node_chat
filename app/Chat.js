@@ -64,10 +64,10 @@ class Chat {
 				this._onUserDisconnect(user, previousRooms);
 			});
 
-			socket.on('notify:typing', (nickname) => {
+			socket.on('notify:typing', ({ nickname, id }) => {
 				this.io
 					.to(this.getCurrentChannel(user))
-					.emit('notify:typing', nickname);
+					.emit('notify:typing', { nickname, id });
 			});
 
 			socket.on('channel:change', (channel) => {
@@ -116,7 +116,7 @@ class Chat {
 	 */
 	_onNewMessage(user, message) {
 		this.io.to(this.getCurrentChannel(user)).emit('message:new', {
-			nickname: user.nickname,
+			user: { nickname: user.nickname, id: user.id },
 			message: message
 		});
 	}
@@ -126,7 +126,9 @@ class Chat {
 	 * @returns {Array} la liste des "nicknames" prise dans la liste des users
 	 */
 	getUsernamesList(channel) {
-		return this[channel].getUsersList().map((user) => user.nickname);
+		return this[channel].getUsersList().map((user) => {
+			return { nickname: user.nickname, id: user.id };
+		});
 	}
 
 	sendUsernamesList(channel) {
